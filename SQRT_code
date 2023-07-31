@@ -1,0 +1,104 @@
+module trial1(
+    input [15:0]in, // input we give
+    output reg [15:0]out, // output which will be seen on lead
+    input clk,
+    input reset,
+    input [1:0]show // decide which part of output should be shown
+    );
+    reg [15:0]a,x,t; // intermediate variable to store the different values
+    reg [15:0]q; // use to store quotient
+//    wire done;
+    reg [15:0]out1; // store the integer part of output
+    reg [31:0]out2; // store the decimal part of output
+    integer count ; // count the number of iteration
+    always@(posedge clk)
+        if(reset) begin  // initializing all the variables
+            a=0;
+            x=in; // multiplying with 10 to the power 18 to get precision of till 9 digit.
+            t=0;
+            count = 8;
+            q=0;
+            out = 0;
+        end
+        else if (count!=0) begin
+//        if(!done) begin
+            a = a<< 2; // left shift a by two bit 
+            a[1:0]=x[15:14]; // storing first two msb of x to lsb of a
+            x=x<<2; // left shift of x by two bit
+            t = a - {q,2'b01}; // finding t value for sign test
+            q = q<<1; // left shifting q by one bit
+             a = t[15]==0 ? t :a;  // checking weather t is negative or positive and storing value in a accordingly
+             q[0] = t[15]==0 ? 1 :0; // if t negative lsb of q is 0 else is 1
+             
+            count = count-1;
+            if (count==0) begin
+              out=q; // getting value of decimal part from qutioent
+            end
+//            end
+        end
+endmodule
+
+module trial2(
+    input [15:0]in, // input we give
+    output reg [77:0]out, // output which will be seen on lead
+    input clk,
+    input reset,
+    input [1:0]show // decide which part of output should be shown
+    );
+    reg [77:0]a,x,t; // intermediate variable to store the different values
+    reg [77:0]q; // use to store quotient
+//    wire done;
+     // store the decimal part of output
+    integer count ; // count the number of iteration
+    always@(posedge clk)
+        if(reset) begin  // initializing all the variables
+            a=0;
+            x=in*(10**6); // multiplying with 10 to the power 18 to get precision of till 9 digit.
+            t=0;
+            count = 39;
+            q=0;
+            out = 0;
+        end
+        else if (count!=0) begin
+//        if(!done) begin
+            a = a<< 2; // left shift a by two bit 
+            a[1:0]=x[77:76]; // storing first two msb of x to lsb of a
+            x=x<<2; // left shift of x by two bit
+            t = a - {q,2'b01}; // finding t value for sign test
+            q = q<<1; // left shifting q by one bit
+             a = t[77]==0 ? t :a;  // checking weather t is negative or positive and storing value in a accordingly
+             q[0] = t[77]==0 ? 1 :0; // if t negative lsb of q is 0 else is 1
+             
+            count = count-1;
+            if (count==0) begin
+             out=q; // getting value of decimal part from qutioent
+            end
+//            end
+        end
+endmodule
+
+module trial(
+    input [15:0]in, // input we give
+    output reg[15:0]out, // output which will be seen on lead
+    input clk,
+    input reset,
+    input [1:0]show // decide which part of output should be shown
+    );
+wire [15:0]y1;
+wire [77:0]y2;
+reg [31:0]y;
+trial1 t(in,y1,clk,reset,show);
+trial2 t1(in,y2,clk,reset,show);
+always@(posedge clk)begin
+    if(reset) begin
+        out=0;
+        y=0;
+    end
+    else begin
+        y=y2-(y1*(10**3));
+        out= show==0?y1 : show==1? y[15:0]:y[31:16];
+    end
+end
+
+endmodule
+
